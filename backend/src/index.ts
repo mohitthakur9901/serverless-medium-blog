@@ -84,8 +84,19 @@ app.post('/signin', async (c) => {
 
 app.use('/blog/*', async (c, next) => {
   const header = c.req.header("authorization") || "";
-  const token = header.split(" ")[1]
+  console.log(header);
+  
+
+  if(!header){
+    c.status(403);
+    return c.json({error: "unauthorized"})
+  }
+  const token = header.split(" ")[1];
+ 
   const response = await verify(token, c.env.JWT_TOKEN);
+  console.log(response);
+  
+  
 
   if(response.id){
     c.set("userId", response.id);
@@ -95,9 +106,10 @@ app.use('/blog/*', async (c, next) => {
     return c.json({error: "unauthorized"})
   }
 })
+
 app.post('/blog', async (c) => {
   const userId = c.get('userId');
-  console.log(userId);
+  // console.log(userId);
 
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
@@ -114,6 +126,7 @@ app.post('/blog', async (c) => {
   });
 
   return c.json({
+    message: "Post Created Successfully",
     id: newPost.id
   });
 })
