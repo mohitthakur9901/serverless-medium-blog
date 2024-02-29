@@ -83,54 +83,39 @@ app.post('/signin', async (c) => {
 })
 
 app.use('/blog/*', async (c, next) => {
-  const jwt = c.req.header('Authorization');
+  const header = c.req.header("authorization") || "";
+  const token = header.split(" ")[1]
+  const response = await verify(token, c.env.JWT_TOKEN);
 
-  if (!jwt) {
-    console.log('No JWT found');
-    c.status(401);
-    return c.json({ error: 'unauthorized' });
+  if(response.id){
+    c.set("userId", response.id);
+    await next()
+  }else{
+    c.status(403);
+    return c.json({error: "unauthorized"})
   }
-
-  try {
-    const token = jwt.split(' ')[1];
-    const payload = await verify(token, c.env.JWT_TOKEN);
-
-    if (!payload) {
-      console.log('Token verification failed');
-      c.status(401);
-      return c.json({ error: 'unauthorized' });
-    }
-
-    c.set('userId', payload.id); // Set the actual user ID from the payload
-    await next();
-  } catch (error) {
-    console.error('JWT verification error:', error);
-    c.status(401);
-    return c.json({ error: 'unauthorized' });
-  }
-});
-
+})
 app.post('/blog', async (c) => {
   const userId = c.get('userId');
   console.log(userId);
-  
-	const prisma = new PrismaClient({
-		datasourceUrl: c.env?.DATABASE_URL	,
-	}).$extends(withAccelerate());
 
-	const body = await c.req.json();
-	const newPost = await prisma.post.create({
-		data: {
-      id : body.id,
-			title: body.title,
-			content: body.content,
-			authorId: userId
-		}
-	});
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
 
-	return c.json({
-		id: newPost.id
-	});
+  const body = await c.req.json();
+  const newPost = await prisma.post.create({
+    data: {
+      id: body.id,
+      title: body.title,
+      content: body.content,
+      authorId: userId
+    }
+  });
+
+  return c.json({
+    id: newPost.id
+  });
 })
 
 
