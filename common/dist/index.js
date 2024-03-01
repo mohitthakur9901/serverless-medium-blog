@@ -5,20 +5,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updatePostInput = exports.createPostInput = exports.signinInput = exports.signupInput = void 0;
 const zod_1 = __importDefault(require("zod"));
-exports.signupInput = zod_1.default.object({
+const signupInput = zod_1.default.object({
     email: zod_1.default.string().email(),
     password: zod_1.default.string(),
     name: zod_1.default.string().optional(),
 });
-exports.signinInput = zod_1.default.object({
+exports.signupInput = signupInput;
+const signinInput = zod_1.default.object({
     email: zod_1.default.string().email(),
     password: zod_1.default.string(),
 });
-exports.createPostInput = zod_1.default.object({
+exports.signinInput = signinInput;
+const createPostInput = zod_1.default.object({
     title: zod_1.default.string(),
     content: zod_1.default.string(),
 });
-exports.updatePostInput = zod_1.default.object({
+exports.createPostInput = createPostInput;
+const updatePostInput = zod_1.default.object({
     title: zod_1.default.string().optional(),
     content: zod_1.default.string().optional(),
 });
+exports.updatePostInput = updatePostInput;
