@@ -84,7 +84,8 @@ app.post('/signin', async (c) => {
 
     return c.json({
       token: token,
-      message: "User Logged In SuccessFully"
+      message: "User Logged In SuccessFully",
+      user:user
     })
   } catch (error) {
     c.status(403)
