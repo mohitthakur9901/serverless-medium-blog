@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { sign, verify } from 'hono/jwt'
-
+import { signinInput, signupInput, createPostInput, updatePostInput } from 'mohit_mohit'
 const app = new Hono<{
   Bindings: {
     DATABASE_URL: string
@@ -24,34 +24,34 @@ app.post('/signup', async (c) => {
   }).$extends(withAccelerate());
 
   const body = await c.req.json()
-  if (!body.email || !body.password) {
-    c.status(400)
-    return c.text('email and password are required')
-  }
-  if (body.password.length < 8) {
-    c.status(400)
-    return c.text('password must be at least 8 characters')
-  }
-  if (!body.email.includes('@')) {
-    c.status(400)
-    return c.text('email must be a valid email address')
-  }
-  const user = await prisma.user.findUnique({
-    where: {
-      email: body.email
-    }
-  })
-  if (user) {
-    return c.text('user already exists')
+  const { success } = signupInput.safeParse(body)
+
+  if (!success) {
+    c.status(400);
+    return c.json({ error: "invalid input" });
   }
 
-  const newUser = await prisma.user.create({
-    data: {
-      email: body.email,
-      password: body.password
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: body.email
+      }
+    })
+    if (user) {
+      return c.text('user already exists')
     }
-  })
-  return c.text("User Created SuccessFully")
+
+    const newUser = await prisma.user.create({
+      data: {
+        email: body.email,
+        password: body.password
+      }
+    })
+    return c.text("User Created SuccessFully")
+  } catch (error) {
+    c.status(403);
+    return c.json({ error: "error while signing up" });
+  }
 
 });
 
@@ -63,26 +63,33 @@ app.post('/signin', async (c) => {
   }).$extends(withAccelerate());
 
   const body = await c.req.json()
-  if (!body.email || !body.password) {
+  const { success } = signinInput.safeParse(body)
+  if (!success) {
     c.status(400)
-    return c.text('email and password are required')
+    return c.text('invalid input')
   }
-  const user = await prisma.user.findUnique({
-    where: {
-      email: body.email
-    }
-  })
-  if (!user) {
-    return c.text('user not found')
-  }
-  const id = user.id;
-  const token = await sign(id, c.env.JWT_TOKEN)
-  // console.log(token);
 
-  return c.json({
-    token: token,
-    message: "User Logged In SuccessFully"
-  })
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: body.email
+      }
+    })
+    if (!user) {
+      return c.text('user not found')
+    }
+    const id = user.id;
+    const token = await sign(id, c.env.JWT_TOKEN)
+    // console.log(token);
+
+    return c.json({
+      token: token,
+      message: "User Logged In SuccessFully"
+    })
+  } catch (error) {
+    c.status(403)
+    return c.text('error while logging in')
+  }
 
 })
 
@@ -91,7 +98,7 @@ app.use('/blog/*', async (c, next) => {
   try {
     const header = c.req.header('Authorization');
     // console.log(header);
-    
+
     if (!header) {
       c.status(401)
       return c.text('Unauthorized')
@@ -117,20 +124,26 @@ app.post('/blog', async (c) => {
 
   const body = await c.req.json()
   const userId = c.get('userId');
-
-  if (!(body.title || body.content)) {
+  const { success } = createPostInput.safeParse(body)
+  if (!success) {
     c.status(400)
-    return c.text('title and content are required')
+    return c.text('invalid input')
   }
-  const newBlog = await prisma.post.create({
-    data: {
-      id: body.id,
-      title: body.title,
-      content: body.content,
-      authorId: userId
-    }
-  })
-  return c.text("Blog Created SuccessFully")
+
+  try {
+    const newBlog = await prisma.post.create({
+      data: {
+        title: body.title,
+        content: body.content,
+        authorId: userId
+      }
+    })
+    return c.text("Blog Created SuccessFully")
+  } catch (error) {
+    c.status(403)
+    return c.text('error while creating blog')
+
+  }
 
 })
 
@@ -142,20 +155,32 @@ app.put('/blog/:id', async (c) => {
 
   const body = await c.req.json()
   const userId = c.get('userId');
-  const id = c.req.param('id');  
+  const id = c.req.param('id');
+  const { success } = updatePostInput.safeParse(body)
 
-  const newBlog = await prisma.post.update({
-    where: {
-      id,
-      authorId : userId
-    },
-    data: {
-      title: body.title,
-      content: body.content,
-    }
-  })
-  return c.text("Blog Updated SuccessFully")
+  if (!success) {
+    c.status(400)
+    return c.text('invalid input')
+  }
 
+  try {
+    const newBlog = await prisma.post.update({
+      where: {
+        id,
+        authorId: userId
+      },
+      data: {
+        title: body.title,
+        content: body.content,
+      }
+    })
+    return c.text("Blog Updated SuccessFully")
+
+  } catch (error) {
+    c.status(403)
+    return c.text('error while updating blog')
+
+  }
 })
 
 
@@ -168,7 +193,7 @@ app.get('/blog', async (c) => {
   const userId = c.get('userId');
   const blogs = await prisma.post.findMany({
     where: {
-      authorId : userId
+      authorId: userId
     }
   })
   return c.json(blogs)
@@ -188,7 +213,7 @@ app.get('/blog/:id', async (c) => {
   const blogs = await prisma.post.findFirst({
     where: {
       id,
-      authorId : userId
+      authorId: userId
     }
   })
   return c.json(blogs)
