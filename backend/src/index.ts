@@ -14,7 +14,10 @@ const app = new Hono<{
 }>();
 
 
+// login and signup routes
 
+
+// signup route
 app.post('/signup', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
@@ -52,6 +55,7 @@ app.post('/signup', async (c) => {
 
 });
 
+// login route
 
 app.post('/signin', async (c) => {
   const prisma = new PrismaClient({
@@ -82,102 +86,114 @@ app.post('/signin', async (c) => {
 
 })
 
+// middleware
 app.use('/blog/*', async (c, next) => {
-  const header = c.req.header("authorization") || "";
-  console.log(header);
-  
+  try {
+    const header = c.req.header('Authorization');
+    // console.log(header);
+    
+    if (!header) {
+      c.status(401)
+      return c.text('Unauthorized')
+    }
 
-  if(!header){
-    c.status(403);
-    return c.json({error: "unauthorized"})
-  }
-  const token = header.split(" ")[1];
- 
-  const response = await verify(token, c.env.JWT_TOKEN);
-  console.log(response);
-  
-  
-
-  if(response.id){
-    c.set("userId", response.id);
-    await next()
-  }else{
-    c.status(403);
-    return c.json({error: "unauthorized"})
+    const userId = await verify(header, c.env.JWT_TOKEN);
+    c.set('userId', userId)
+    await next();
+  } catch (error) {
+    c.status(401)
+    return c.text('Unauthorized')
   }
 })
 
-app.post('/blog', async (c) => {
-  const userId = c.get('userId');
-  // console.log(userId);
 
+// blog post routes 
+
+// create blog route
+app.post('/blog', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const body = await c.req.json();
-  const newPost = await prisma.post.create({
+  const body = await c.req.json()
+  const userId = c.get('userId');
+
+  if (!(body.title || body.content)) {
+    c.status(400)
+    return c.text('title and content are required')
+  }
+  const newBlog = await prisma.post.create({
     data: {
       id: body.id,
       title: body.title,
       content: body.content,
       authorId: userId
     }
-  });
+  })
+  return c.text("Blog Created SuccessFully")
 
-  return c.json({
-    message: "Post Created Successfully",
-    id: newPost.id
-  });
 })
 
-
+// update post route 
 app.put('/blog/:id', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
+
   const body = await c.req.json()
   const userId = c.get('userId');
-  if (!body.title || !body.content) {
-    c.status(400)
-    return c.text('title and content are required')
-  }
-  const updatePost = await prisma.post.update({
+  const id = c.req.param('id');  
+
+  const newBlog = await prisma.post.update({
     where: {
-      id: body.id,
-      authorId: userId ? userId : c.get('userId') as string
+      id,
+      authorId : userId
     },
     data: {
       title: body.title,
       content: body.content,
     }
   })
-  return c.json({
-    message: "Post Updated Successfully",
-    data: updatePost
-  })
+  return c.text("Blog Updated SuccessFully")
+
 })
 
 
-app.get('/blog/:id', (c) => {
+// get all blog route 
+app.get('/blog', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
-  const id = c.req.param('id')
-  const getPost = prisma.post.findUnique({
+
+  const userId = c.get('userId');
+  const blogs = await prisma.post.findMany({
     where: {
-      id
+      authorId : userId
     }
   })
-  if (!getPost) {
-    c.status(400);
-    return c.json({
-      message: "Invaild Request"
-    })
-  }
-  return c.json(getPost)
+  return c.json(blogs)
+
 })
 
+
+// get blog by id route
+
+app.get('/blog/:id', async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const userId = c.get('userId');
+  const id = c.req.param('id');
+  const blogs = await prisma.post.findFirst({
+    where: {
+      id,
+      authorId : userId
+    }
+  })
+  return c.json(blogs)
+
+})
 
 
 export default app
