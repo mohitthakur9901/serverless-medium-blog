@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { sign, verify } from 'hono/jwt'
+import { cors } from 'hono/cors'
 import { signinInput, signupInput, createPostInput, updatePostInput } from 'mohit_mohit'
 const app = new Hono<{
   Bindings: {
@@ -17,6 +18,7 @@ const app = new Hono<{
 // login and signup routes
 
 
+app.use("*", cors())
 // signup route
 app.post('/signup', async (c) => {
   const prisma = new PrismaClient({
@@ -43,11 +45,16 @@ app.post('/signup', async (c) => {
 
     const newUser = await prisma.user.create({
       data: {
+        name:body.name,
         email: body.email,
         password: body.password
       }
     })
-    return c.text("User Created SuccessFully")
+    
+    return c.json({
+      user: newUser,
+      message: "User Created SuccessFully"
+    })
   } catch (error) {
     c.status(403);
     return c.json({ error: "error while signing up" });
