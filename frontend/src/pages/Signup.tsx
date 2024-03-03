@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Quote from './Quote';
 import Labelinput from '../components/Labelinput';
 import { SignupType } from 'mohit_mohit';
@@ -7,11 +7,17 @@ import { BACKEND_URL } from '../config';
 
 
 const Signup = () => {
+    const navigate = useNavigate();
+
     const [postInputs, setPostinputs] = useState<SignupType>({
         name: '',
         email: '',
         password: '',
     });
+    console.log(BACKEND_URL);
+    console.log(postInputs);
+    
+    
 
     async function handleSubmit() {
         try {
@@ -24,10 +30,10 @@ const Signup = () => {
             });
             const data = await response.json();
             console.log(data);
-            if (data.message === 'User created successfully') {
-                alert('User created successfully');
+            if (data.status === 'success') {
+                navigate('/signin');
             } else {
-                alert('User already exists');
+                alert('Invalid credentials');
             }
             setPostinputs({ name: '', email: '', password: '' });
         } catch (error) {
@@ -72,7 +78,7 @@ const Signup = () => {
                             setPostinputs({ ...postInputs, password: e.target.value });
                         }}
                     />
-                    <button className="bg-black text-white p-2 rounded-md" onClick={handleSubmit}>
+                    <button className="bg-black text-white p-2 rounded-md" onClick={() => handleSubmit}>
                         Sign up
                     </button>
                 </form>

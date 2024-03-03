@@ -1,19 +1,44 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Quote from './Quote'
 import Labelinput from '../components/Labelinput'
 import { SigninType } from 'mohit_mohit'
+import { BACKEND_URL } from '../config'
 
 const Signin = () => {
+    const navigate = useNavigate();
     const [postInputs, setPostinputs] = useState<SigninType>({
         email: '',
         password: ''
     })
 
+    console.log(postInputs);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
 
+    const handleSubmit = async () => {
+        try {
+            const response = await fetch(`${BACKEND_URL}/signin`, {
+                method: 'Post',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(postInputs),
+            });
+            const data = await response.json();
+            console.log(data);
+            if (data.status === 'success') {
+                navigate('/');
+            } else {
+                alert('Invalid credentials');
+            }
+            setPostinputs({ email: '', password: '' });
+        } catch (error) {
+            console.log(error);
+            alert('Invalid credentials');
+            setPostinputs({ email: '', password: '' });
+            return;
+
+        }
 
     }
 
@@ -27,7 +52,7 @@ const Signin = () => {
                     </div>
                     <Labelinput type='text' label='Email' placeholder='Email' onChange={(e) => setPostinputs({ ...postInputs, email: e.target.value })} />
                     <Labelinput type='password' label='Password' placeholder='Password' onChange={(e) => setPostinputs({ ...postInputs, password: e.target.value })} />
-                    <button className="bg-black text-white p-2 rounded-md" onClick={() => handleSubmit}>Sign In</button>
+                    <button className="bg-black text-white p-2 rounded-md" onClick={handleSubmit}>Sign In</button>
                 </form>
             </div>
             <Quote heading='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Beatae commodi assumenda minima rem repellat sapiente reprehenderit. Nemo, expedita. Beatae deleniti id excepturi veniam asperiores enim? Quos officia quam maxime nihil.'

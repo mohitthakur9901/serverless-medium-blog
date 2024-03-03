@@ -4,6 +4,7 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 import { sign, verify } from 'hono/jwt'
 import { cors } from 'hono/cors'
 import { signinInput, signupInput, createPostInput, updatePostInput } from 'mohit_mohit'
+import { use } from 'hono/jsx'
 const app = new Hono<{
   Bindings: {
     DATABASE_URL: string
@@ -17,8 +18,7 @@ const app = new Hono<{
 
 // login and signup routes
 
-
-app.use("*", cors())
+app.use("/*", cors())
 // signup route
 app.post('/signup', async (c) => {
   const prisma = new PrismaClient({
@@ -52,8 +52,7 @@ app.post('/signup', async (c) => {
     })
     
     return c.json({
-      user: newUser,
-      message: "User Created SuccessFully"
+      user: newUser
     })
   } catch (error) {
     c.status(403);
@@ -89,10 +88,13 @@ app.post('/signin', async (c) => {
     const token = await sign(id, c.env.JWT_TOKEN)
     // console.log(token);
 
+    const userDetails = {
+      userEmail : user.email,
+      userName: user.name
+    }
     return c.json({
       token: token,
-      message: "User Logged In SuccessFully",
-      user:user
+      user:userDetails
     })
   } catch (error) {
     c.status(403)
