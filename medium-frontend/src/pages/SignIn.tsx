@@ -17,7 +17,7 @@ const Signin = () => {
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.post(`${BACKEND_URL}/signin`, postInputs);
+            const response = await axios.post(`${BACKEND_URL}api/v1/signin`, postInputs);
             console.log(response);
 
             if (response.status === 200) {
@@ -40,7 +40,7 @@ const Signin = () => {
                 <form method="post" className='flex flex-col gap-y-5 mt-20 md:mt-28 md:w-96'>
                     <h1 className='text-4xl text-center font-bold mb-4 md:text-5xl mt-20'>Login To Account</h1>
                     <div className="text-center mt-2 md:mt-4">
-                        <p>Don't have an account?<Link to='/signup' className='text-blue-500 hover:underline'>Sign up</Link></p>
+                        <p>Don't have an account?<Link to='/signup' className='text-blue-500 hover:underline'> Sign up</Link></p>
                     </div>
                     <Labelinput type='text' label='Email' placeholder='Email' onChange={(e) => setPostinputs({ ...postInputs, email: e.target.value })} />
                     <Labelinput type='password' label='Password' placeholder='Password' onChange={(e) => setPostinputs({ ...postInputs, password: e.target.value })} />

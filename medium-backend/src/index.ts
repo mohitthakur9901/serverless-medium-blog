@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate';
 import { Hono } from 'hono'
-import { SignupType, signinInput, signupInput } from 'mohit_mohit'
+import { signinInput, signupInput , updatePostInput,createPostInput } from 'mohit_mohit'
 import { cors } from 'hono/cors';
 import { sign, verify } from 'hono/jwt';
 
@@ -29,11 +29,11 @@ app.post('/api/v1/signup', async (c) => {
 
   try {
     const body = await c.req.json();
-    console.log(body);
+
 
 
     const validate = signupInput.safeParse(body)
-    console.log(validate);
+    // console.log(validate);
 
     if (!validate.success) {
       c.status(403)
@@ -73,10 +73,10 @@ app.post('/api/v1/signin', async (c) => {
   }).$extends(withAccelerate());
   try {
     const body = await c.req.json();
-    console.log(body);
+
     const validate = signinInput.safeParse(body);
 
-    console.log(validate);
+    // console.log(validate);
     if (!validate.success) {
       c.status(403)
       return c.json('invalid input')
@@ -112,13 +112,13 @@ app.post('/api/v1/signin', async (c) => {
 app.use('/api/v1/blog/*', async (c, next) => {
   try {
     const header = c.req.header('Authorization')
-    console.log(header);
+    // console.log(header);
     if (!header) {
       c.status(403)
       return c.json('invalid token')
     }
     const userId = await verify(header, c.env.JWT_TOKEN)
-    console.log(userId);
+    // console.log(userId);
     c.set('userId', userId.userId)
     await next()
   } catch (error) {
@@ -128,12 +128,23 @@ app.use('/api/v1/blog/*', async (c, next) => {
   }
 })
 
-app.get('/api/v1/blog',async (c) => {
+app.get('/api/v1/blog', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
   try {
-    const blogs = await prisma.post.findMany()
+    const blogs = await prisma.post.findMany({
+      select:{
+        id:true,
+        title:true,
+        content:true,
+        author:{
+          select:{
+            name:true
+          }
+        }
+      }
+    })
     return c.json({
       blogs: blogs,
       message: 'blogs fetched successfully'
@@ -144,13 +155,13 @@ app.get('/api/v1/blog',async (c) => {
 
   }
 })
- 
+
 app.get('/api/v1/blog/:id', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
   const id = c.req.param('id')
-  console.log(id);
+  // console.log(id);
 
   try {
     const blog = await prisma.post.findUnique({
@@ -180,9 +191,14 @@ app.post('/api/v1/blog', async (c) => {
   }).$extends(withAccelerate());
   try {
     const body = await c.req.json();
-    console.log(body);
+    const validate = createPostInput.safeParse(body);
+    if (!validate.success){
+      c.status(403)
+      return c.json('invalid input')
+    }
+
     const userId = c.get('userId')
-    console.log(userId);
+    // console.log(userId);
     const newBlog = await prisma.post.create({
       data: {
         title: body.title,
@@ -207,13 +223,18 @@ app.put('/api/v1/blog/:id', async (c) => {
   }).$extends(withAccelerate());
 
   try {
-    const id =  c.req.param('id')
+    const id = c.req.param('id')
     const body = await c.req.json();
-    console.log(body);
+
+    const validate = updatePostInput.safeParse(body);
+    if (!validate.success) {
+      c.status(403)
+      return c.json('invalid input')
+    }
     const userId = c.get('userId')
     const updateBlog = await prisma.post.update({
       where: {
-        id:id,
+        id: id,
         authorId: userId
       },
       data: {
@@ -221,10 +242,14 @@ app.put('/api/v1/blog/:id', async (c) => {
         content: body.content,
       }
     })
+    return c.json({
+      blog: updateBlog,
+      message: 'blog updated successfully'
+    })
   } catch (error) {
     c.status(403)
     return c.json({ error: "error while updating blog" });
-    
+
   }
 })
 
@@ -268,6 +293,7 @@ app.patch('/api/v1/blog/:id', async (c) => {
       }
     })
     return c.json({
+      blog: updateBlog,
       message: 'blog updated successfully'
     })
   } catch (error) {
