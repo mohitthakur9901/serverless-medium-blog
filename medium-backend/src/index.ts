@@ -108,27 +108,7 @@ app.post('/api/v1/signin', async (c) => {
   }
 
 })
-
-app.use('/api/v1/blog/*', async (c, next) => {
-  try {
-    const header = c.req.header('Authorization')
-    // console.log(header);
-    if (!header) {
-      c.status(403)
-      return c.json('invalid token')
-    }
-    const userId = await verify(header, c.env.JWT_TOKEN)
-    // console.log(userId);
-    c.set('userId', userId.userId)
-    await next()
-  } catch (error) {
-    c.status(403)
-    return c.json({ error: "Invalid Token" });
-
-  }
-})
-
-app.get('/api/v1/blog', async (c) => {
+app.get('/api/v1/all', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
@@ -155,6 +135,27 @@ app.get('/api/v1/blog', async (c) => {
 
   }
 })
+
+
+app.use('/api/v1/blog/*', async (c, next) => {
+  try {
+    const header = c.req.header('Authorization')
+    // console.log(header);
+    if (!header) {
+      c.status(403)
+      return c.json('invalid token')
+    }
+    const userId = await verify(header, c.env.JWT_TOKEN)
+    // console.log(userId);
+    c.set('userId', userId.userId)
+    await next()
+  } catch (error) {
+    c.status(403)
+    return c.json({ error: "Invalid Token" });
+
+  }
+})
+
 
 app.get('/api/v1/blog/:id', async (c) => {
   const prisma = new PrismaClient({

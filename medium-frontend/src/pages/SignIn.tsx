@@ -2,9 +2,10 @@ import { Link, useNavigate } from "react-router-dom";
 import Labelinput from "../components/Labelinput";
 import Quote from "../components/Quote";
 import { useState } from "react";
-import axios from "axios";
+
 import { SigninType } from "mohit_mohit";
 import { BACKEND_URL } from "../config";
+console.log(BACKEND_URL);
 
 const Signin = () => {
     const navigate = useNavigate();
@@ -13,11 +14,11 @@ const Signin = () => {
         password: ''
     });
     const [responseData, setResponseData] = useState();
-    console.log(responseData);
+    // console.log(responseData);
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.post(`${BACKEND_URL}api/v1/signin`, postInputs);
+            const response = await BACKEND_URL.post(`/signin`, postInputs);
             console.log(response);
 
             if (response.status === 200) {

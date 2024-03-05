@@ -20,6 +20,7 @@ model User {
   name     String?
   password String
   posts    Post[]
+  createdAt DateTime 
 }
 
 model Post {
@@ -29,4 +30,6 @@ model Post {
   published Boolean  @default(false)
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
+  createdAt DateTime 
+  updatedAt DateTime
 }
