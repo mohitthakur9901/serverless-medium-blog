@@ -201,18 +201,19 @@ app.post('/api/v1/blog', async (c) => {
 
 })
 
-app.put('/api/v1/blog', async (c) => {
+app.put('/api/v1/blog/:id', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
+    const id =  c.req.param('id')
     const body = await c.req.json();
     console.log(body);
     const userId = c.get('userId')
     const updateBlog = await prisma.post.update({
       where: {
-        id: body.id,
+        id:id,
         authorId: userId
       },
       data: {
