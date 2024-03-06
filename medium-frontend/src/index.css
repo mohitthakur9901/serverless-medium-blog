@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.blog-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .blog-item {
+    border: 1px solid #ddd; /* Add border for separation */
+    padding: 16px; /* Add padding for spacing */
+    margin-bottom: 16px; /* Add margin for separation between items */
+    transition: transform 0.3s, box-shadow 0.3s; /* Add transition for smooth hover effect */
+  }
+  
+  .blog-item:hover {
+    transform: translateY(-5px); /* Move the element slightly up on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow on hover */
+  }
+  

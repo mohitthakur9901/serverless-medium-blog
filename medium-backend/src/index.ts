@@ -74,10 +74,9 @@ app.post('/api/v1/signin', async (c) => {
   try {
     const body = await c.req.json();
 
-    const validate = signinInput.safeParse(body);
-
-    // console.log(validate);
-    if (!validate.success) {
+    const {success} = signinInput.safeParse(body);
+  
+    if (!success) {
       c.status(403)
       return c.json('invalid input')
     }
@@ -108,6 +107,7 @@ app.post('/api/v1/signin', async (c) => {
   }
 
 })
+
 app.get('/api/v1/all', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
@@ -204,7 +204,7 @@ app.post('/api/v1/blog', async (c) => {
       data: {
         title: body.title,
         content: body.content,
-        authorId: userId
+        authorId: userId,
       }
     })
     return c.json({

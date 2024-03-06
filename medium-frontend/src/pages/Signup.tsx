@@ -4,10 +4,16 @@ import Quote from "../components/Quote";
 import { BACKEND_URL } from "../config";
 import { useState } from "react";
 import { SignupType } from "mohit_mohit";
+import { setUser } from '../store/AuthUser/User'
+import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+
 
 const Signup = () => {
     const navigate = useNavigate();
-    const [responseData, setResponseData] = useState();
+    const dispatch = useDispatch();
+    const [Loading, setLoading] = useState<boolean>(false);
 
     const [postInputs, setPostinputs] = useState<SignupType>({
         name: '',
@@ -16,20 +22,29 @@ const Signup = () => {
     });
 
     async function handleSubmit() {
+        if (postInputs.name === '' || postInputs.email === '' || postInputs.password === '') {
+            toast.error('Please fill in all the fields');
+            return;
+        }
+       
         try {
+            setLoading(true);
             const response = await BACKEND_URL.post(`/signup`, postInputs);
             console.log(response);
 
             if (response.status === 200) {
-                setResponseData(response.data);
+
+                dispatch(setUser(response.data))
+                setLoading(false)
+                toast.success('Signup Successful');
                 navigate('/');
-                setPostinputs({ email: '', password: '' });
-            } else {
-                throw new Error('Invalid credentials');
+                setPostinputs({ name: '', email: '', password: '' });
             }
+            toast.error('Invalid credentials');
+            setPostinputs({ name: '', email: '', password: '' });
         } catch (error) {
             console.error(error);
-            alert('Invalid credentials');
+            toast.error('Invalid credentials');
             setPostinputs({ email: '', password: '' });
         }
     };
@@ -51,6 +66,8 @@ const Signup = () => {
                     <Labelinput
                         type="text"
                         label="Name"
+                        required={true}
+                        className='border-2 border-black rounded-md p-2'
                         placeholder="Name"
                         onChange={(e) => {
                             setPostinputs({ ...postInputs, name: e.target.value });
@@ -58,23 +75,33 @@ const Signup = () => {
                     />
                     <Labelinput
                         type="text"
+                        required={true}
                         label="Email"
                         placeholder="Email"
+                        className='border-2 border-black rounded-md p-2'
                         onChange={(e) => {
                             setPostinputs({ ...postInputs, email: e.target.value });
                         }}
                     />
                     <Labelinput
                         type="password"
+                        required={true}
                         label="Password"
                         placeholder="Password"
+                        className='border-2 border-black rounded-md p-2'
                         onChange={(e) => {
                             setPostinputs({ ...postInputs, password: e.target.value });
                         }}
                     />
-                    <button className="bg-black text-white p-2 rounded-md" onClick={() => handleSubmit}>
-                        Sign up
-                    </button>
+                                       <button type="button" className={`bg-black text-white p-2 rounded-md ${Loading ? "opacity-50" : ""} `} onClick={handleSubmit} disabled={Loading}>
+                        <button
+                        type="button"
+                        className={`bg-black text-white p-2 rounded-md ${Loading ? "opacity-50" : ""}`}
+                        onClick={handleSubmit}
+                        disabled={Loading}
+                    >
+                        {Loading ? <h1 className="animate-spin text-white items-center"><AiOutlineLoading3Quarters /></h1> : 'Sign In'}
+                    </button></button>
                 </form>
             </div>
             <Quote

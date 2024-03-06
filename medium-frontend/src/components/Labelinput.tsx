@@ -5,13 +5,17 @@ interface LabelinputProps {
   placeholder: string
   onChange: (e : ChangeEvent<HTMLInputElement>) => void
   type:string
+  required?:boolean
+  className?: string
+  value?:string
+  
 }
 
-const Labelinput = ({ label, placeholder, onChange ,type}: LabelinputProps) => {
+const Labelinput = ({ label, placeholder, onChange ,type,required,className, value}: LabelinputProps) => {
   return (
     <div className='flex flex-col gap-1'>
       <label className='text-sm font-semibold'>{label}</label>
-      <input onChange={onChange} className='border-2 border-black rounded-md p-2' type={type} placeholder={placeholder} required/>
+      <input onChange={onChange} className={className} value={value} type={type} placeholder={placeholder} required={required}/>
     </div>
   )
 }
