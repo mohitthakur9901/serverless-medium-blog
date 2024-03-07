@@ -30,7 +30,7 @@ const Signup = () => {
         try {
             setLoading(true);
             const response = await BACKEND_URL.post(`/signup`, postInputs);
-            console.log(response);
+            // console.log(response);
 
             if (response.status === 200) {
 

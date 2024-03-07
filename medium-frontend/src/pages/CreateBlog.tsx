@@ -23,13 +23,13 @@ const CreateBlog = () => {
         }
         try {
             setLoading(true);
-          
+
             const response = await BACKEND_URL.post('/blog', postInputs, {
                 headers: {
                     Authorization: `${token}`,
                 },
             });
-            console.log(response);
+            // console.log(response);
 
             if (response.status === 200) {
                 setLoading(false);
@@ -47,7 +47,7 @@ const CreateBlog = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto p-4 mt-32 items-center">
+        <div className="max-w-md mx-auto p-4 mt-32 items-center shadow-md">
             <h1 className="text-2xl font-bold mb-4 ">Create a New Blog Post</h1>
             <Labelinput
                 type="text"
@@ -67,15 +67,26 @@ const CreateBlog = () => {
                     setPostinputs({ ...postInputs, content: e.target.value });
                 }}
             />
-            <button
-                type="button"
-                className={`rounded-3xl bg-black text-white items-end mt-5 sm:px-5 p-3 hover:bg-gray-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                onClick={handleCreate}
-                disabled={loading}
-            >
-                {loading ? <h1 className="animate-spin"><AiOutlineLoading3Quarters/></h1>: 'Create'}
-            </button>
+           <div className="flex justify-end gap-5">
+        <button
+          type="button"
+          className={`rounded-3xl bg-black text-white items-end mt-5 sm:px-5 p-3 hover:bg-gray-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          onClick={handleCreate}
+          disabled={loading}
+        >
+          {loading ? <h1 className="animate-spin"><AiOutlineLoading3Quarters /></h1> : 'Create'}
+        </button>
+        <button
+          type="button"
+          className={`rounded-3xl bg-black text-white items-end mt-5 sm:px-5 p-3 hover:bg-gray-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          onClick={() => navigate(`/`)}
+          disabled={loading}
+        >
+          {loading ? <h1 className="animate-spin"><AiOutlineLoading3Quarters /></h1> : 'Go Back'}
+        </button>
+      </div>
         </div>
     );
 };

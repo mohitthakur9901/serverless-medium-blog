@@ -13,11 +13,12 @@ const BLogCard = () => {
     const { token, user } = useSelector((state: any) => state.user);
     const { blog } = useSelector((state: any) => state.blog);
     const navigate = useNavigate();
+    console.log(blog);
+    
 
 
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
-    // console.log(user);
 
     useEffect(() => {
         const fetchBlog = async () => {
@@ -45,13 +46,16 @@ const BLogCard = () => {
     }, [id, token, dispatch]);
 
     const deleteblog = async () => {
+
         try {
+            setLoading(true)
             const res = await BACKEND_URL.delete(`/blog/${id}`, {
                 headers: {
                     Authorization: `${token}`,
                 },
             });
             if (res.status === 200) {
+                setLoading(false)
                 toast.success('Blog deleted successfully');
                 navigate('/');
             } else {
@@ -60,28 +64,6 @@ const BLogCard = () => {
         } catch (error) {
             console.error('Error deleting blog:', error);
             toast.error('Failed to delete blog');
-        }
-    };
-
-    const updateblog = async () => {
-        try {
-            const res = await BACKEND_URL.put(`/blog/${id}`, {
-                title: blog.title,
-                content: blog.content,
-            }, {
-                headers: {
-                    Authorization: `${token}`,
-                },
-            });
-            if (res.status === 200) {
-                toast.success('Blog updated successfully');
-                navigate('/');
-            } else {
-                toast.error(res.data.message);
-            }
-        } catch (error) {
-            console.error('Error updating blog:', error);
-            toast.error('Failed to update blog');
         }
     };
 
@@ -103,7 +85,7 @@ const BLogCard = () => {
                                     <button
                                         type='button'
                                         className='px-6 h-8 bg-red-600 text-white rounded-lg hover:bg-gray-900'
-                                        onClick={deleteblog}  // Add this line to connect the deleteblog functio
+                                        onClick={deleteblog} 
                                     >
                                         <IoTrashBinOutline/>
                                     </button>
@@ -117,7 +99,7 @@ const BLogCard = () => {
                                    </>
                                     
                                 ) : (
-                                    <></>
+                                    <> </>
                                 )
                             }
                         </div>

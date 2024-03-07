@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FaMedium, FaUserCircle } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeUser } from '../store/AuthUser/User';
 import toast from 'react-hot-toast';
@@ -9,6 +9,7 @@ const Header = () => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const { user } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     toast.success('Logged Out Successfully');
@@ -29,6 +30,7 @@ const Header = () => {
             <h1 className='rounded-3xl bg-black text-white items-end p-1 sm:px-5 px-3 hover:bg-gray-700'>Write</h1>
           </Link>
         )}
+
         {user.id ? (
           <>
             <div className='relative inline-block text-left'>
@@ -46,15 +48,23 @@ const Header = () => {
                   <div className='py-1'>
                     <p className='block px-4 py-2 text-lg text-gray-700'>{user.name}</p>
                     <p className='block px-4 py-2 text-sm text-gray-700'>{user.email}</p>
-                    <div className="flex justify-end mb-2 mr-2">
+                    <button
+                      type='button' 
+                      className='rounded-3xl bg-black text-white  p-1 sm:px-5 px-3 hover:bg-gray-700 w-full mb-2'
+                      onClick={() => navigate('/my-blogs')}
+                    >
+                      my blogs
+                    </button>
+
                     <button
                       type='button'
-                      className='rounded-3xl bg-black text-white  p-1 sm:px-5 px-3 hover:bg-gray-700'
+                      className='rounded-3xl bg-black text-white  p-1 sm:px-5 px-3 hover:bg-gray-700 w-full  '
                       onClick={handleLogout}
                     >
-                      Log Out
+                      LogOut
                     </button>
-                    </div>
+
+
                   </div>
                 </div>
               )}
