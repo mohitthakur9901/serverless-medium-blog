@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Labelinput from '../components/Labelinput';
 import toast from 'react-hot-toast';
 import { BACKEND_URL } from '../config';
 import { useSelector } from 'react-redux';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {  useNavigate, useParams } from 'react-router-dom';
 import { UpdatePostType } from 'mohit_mohit';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
@@ -16,6 +16,9 @@ const UpdateBlog = () => {
   });
   const { token } = useSelector((state: any) => state.user);
   const { blog } = useSelector((state: any) => state.blog);
+
+  console.log(blog);
+  
 
   useEffect(() => {
     if (blog) {
@@ -92,7 +95,7 @@ const UpdateBlog = () => {
           onClick={() => navigate(`/blog/${id}`)}
           disabled={loading}
         >
-          {loading ? <h1 className="animate-spin"><AiOutlineLoading3Quarters /></h1> : 'Go Back'}
+         <h1>Go Back</h1>
         </button>
       </div>
 

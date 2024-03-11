@@ -84,7 +84,7 @@ const CreateBlog = () => {
           onClick={() => navigate(`/`)}
           disabled={loading}
         >
-          {loading ? <h1 className="animate-spin"><AiOutlineLoading3Quarters /></h1> : 'Go Back'}
+         <h1 className="">Go Back</h1> 
         </button>
       </div>
         </div>

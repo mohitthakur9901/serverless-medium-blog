@@ -12,11 +12,10 @@ const Blog = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await BACKEND_URL.get('/all');
+        const response = await BACKEND_URL.get('/all')
         setBlogs(response.data.blogs);
       } catch (error) {
         console.error('Error fetching blogs:', error);

@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-
 interface Blog {
     blog: {
         id: number;
@@ -15,8 +14,7 @@ const initialState: Blog = {
         id: 0,
         title: "",
         content: "",
-        authorId:""
-        
+        authorId:""   
     }
 }
 
@@ -29,24 +27,10 @@ const blogSlice = createSlice({
             state.blog.title = action.payload.title;
             state.blog.content = action.payload.content;
             state.blog.authorId = action.payload.authorId; 
-
-         
-        },
-        removeBlog: (state) => {
-            state.blog.id = 0;
-            state.blog.title = "";
-            state.blog.content = ""; 
-            state.blog.authorId = ""; 
-        },
-        updateBlog: (state, action) => {
-            state.blog.id = action.payload.id;
-            state.blog.title = action.payload.title;
-            state.blog.authorId = action.payload.authorId; 
-          
-        },
+        }
     }
 });
 
-export const { setBlog, removeBlog, updateBlog } = blogSlice.actions;
+export const { setBlog } = blogSlice.actions;
 
 export default blogSlice.reducer;

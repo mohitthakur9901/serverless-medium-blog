@@ -14,7 +14,6 @@ const UserBlog = () => {
     const { user, token } = useSelector((state: any) => state.user)
     const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
-    // console.log(blog);
 
     const deleteblog = async () => {
 

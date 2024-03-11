@@ -13,12 +13,10 @@ const BLogCard = () => {
     const { token, user } = useSelector((state: any) => state.user);
     const { blog } = useSelector((state: any) => state.blog);
     const navigate = useNavigate();
-    console.log(blog);
-    
-
-
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
+
+
 
     useEffect(() => {
         const fetchBlog = async () => {
@@ -45,6 +43,7 @@ const BLogCard = () => {
         fetchBlog();
     }, [id, token, dispatch]);
 
+
     const deleteblog = async () => {
 
         try {
@@ -67,6 +66,7 @@ const BLogCard = () => {
         }
     };
 
+    
     return (
         <div className="bg-white p-8 rounded-md shadow-md mt-32">
             {loading ? (
