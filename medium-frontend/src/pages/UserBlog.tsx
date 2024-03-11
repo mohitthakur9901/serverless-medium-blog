@@ -16,10 +16,9 @@ const UserBlog = () => {
     const navigate = useNavigate();
 
     const deleteblog = async () => {
-
         try {
             setLoading(true)
-            const res = await BACKEND_URL.delete(`/blog/${user.id}`, {
+            const res = await BACKEND_URL.delete(`/blog/${blog.id}`, {
                 headers: {
                     Authorization: `${token}`,
                 },
